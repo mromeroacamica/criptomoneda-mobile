@@ -1,12 +1,16 @@
 import React, {useState, useEffect} from 'react';
-import {Text, View, StyleSheet} from 'react-native';
+import {Text, View, StyleSheet, TouchableHighlight, Alert} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import axios from 'axios';
 
-const Formulario = () => {
-  const [moneda, guardarMoneda] = useState('');
-  const [criptoMoneda, guardarCriptoMoneda] = useState('');
-  const [criptoMonedas, guardarCriptoMonedas] = useState('');
+const Formulario = ({
+  moneda,
+  criptoMoneda,
+  guardarMoneda,
+  guardarCriptoMoneda,
+  guardarConsultarApi,
+}) => {
+  const [criptoMonedas, guardarCriptoMonedas] = useState([]);
 
   useEffect(() => {
     const consultarApi = async () => {
@@ -22,8 +26,18 @@ const Formulario = () => {
   const obtenerMoneda = (moneda) => {
     guardarMoneda(moneda);
   };
-  const obtenerCriptoMoneda = (moneda) => {
-    guardarCriptoMoneda(moneda);
+  const obtenerCriptoMoneda = (cripto) => {
+    guardarCriptoMoneda(cripto);
+  };
+  const cotizarPrecio = () => {
+    if (moneda.trim() === '' || criptoMoneda.trim() === '') {
+      mostrarAlerta();
+      return;
+    }
+    guardarConsultarApi(true);
+  };
+  const mostrarAlerta = () => {
+    Alert.alert('Error...', 'Ambos campos son obligatorios', [{text: 'Ok'}]);
   };
 
   return (
@@ -42,7 +56,7 @@ const Formulario = () => {
       <Text style={styles.label}>Cryptomoneda</Text>
       <Picker
         selectedValue={criptoMoneda}
-        onValueChange={(moneda) => obtenerCriptoMoneda(moneda)}
+        onValueChange={(cripto) => obtenerCriptoMoneda(cripto)}
         itemStyle={{height: 120}}>
         <Picker.Item label="--Seleccione--" value="" />
         {criptoMonedas.map((cripto) => (
@@ -53,6 +67,11 @@ const Formulario = () => {
           />
         ))}
       </Picker>
+      <TouchableHighlight
+        style={styles.btnCotizar}
+        onPress={() => cotizarPrecio()}>
+        <Text style={styles.textoCotizar}>Cotizar</Text>
+      </TouchableHighlight>
     </View>
   );
 };
@@ -63,6 +82,17 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     fontSize: 22,
     marginVertical: 20,
+  },
+  btnCotizar: {
+    backgroundColor: '#5e49e2',
+    padding: 10,
+    marginTop: 20,
+  },
+  textoCotizar: {
+    color: '#fff',
+    fontSize: 18,
+    textTransform: 'uppercase',
+    textAlign: 'center',
   },
 });
 
